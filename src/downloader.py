@@ -1,11 +1,11 @@
 import argparse
 import cloudscraper
-import logging
 import os
 
+from logger import setup_logging
 
 # Set up the logging configuration
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = setup_logging()
 
 
 class ChessDownloader:
@@ -40,7 +40,7 @@ class ChessDownloader:
         """
         match_id = match_url.split("/")[-1]
         with open(f"{self._folder}/{match_id}.pgn", "w") as file:
-            logging.debug(f"Stored match: {match_url}")
+            logger.debug(f"Stored match: {match_url}")
             file.write(match_pgn)
 
     def _store_matches(self, url_match: str):
@@ -50,19 +50,19 @@ class ChessDownloader:
         :param url_match: The URL of the matches.
         :type url_match: str
         """
-        logging.debug(f"Fetching matches from {url_match}")
+        logger.debug(f"Fetching matches from {url_match}")
         # Request matches
         response = self._scraper.get(url_match)
         if response.status_code == 200:
             data = response.json()
             matches = data["games"]
-            logging.info(f"Total matches to store: {len(matches)}")
+            logger.info(f"Total matches to store: {len(matches)}")
             # Store matches
             for match in matches:
                 self._store_match(
                     match_url=match["url"], match_pgn=match["pgn"])
         else:
-            logging.warning(f"There was an error downloading the matches from {url_match}")
+            logger.warning(f"There was an error downloading the matches from {url_match}")
 
     def fetch_games(self, year: int):
         """
@@ -71,7 +71,7 @@ class ChessDownloader:
         :param year: The year of the games to download.
         :type year: int
         """
-        logging.info(f"Fetching games for the year {year}")
+        logger.info(f"Fetching games for the year {year}")
         # Create the 'matches' folder if it doesn't exist
         if not os.path.exists(self._folder):
             os.makedirs(self._folder)
@@ -83,7 +83,7 @@ class ChessDownloader:
                 5: 'May', 6: 'June', 7: 'July', 8: 'August',
                 9: 'September', 10: 'October', 11: 'November', 12: 'December'
             }[month]
-            logging.info(f"Fetching games for {month_name}")
+            logger.info(f"Fetching games for {month_name}")
             url_match = f"https://api.chess.com/pub/player/{self._player_name}/games/{year}/{month:02d}"
             self._store_matches(url_match=url_match)
 
