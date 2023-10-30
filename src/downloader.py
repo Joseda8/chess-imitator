@@ -39,7 +39,7 @@ class ChessDownloader:
         :type match_pgn: str
         """
         match_id = match_url.split("/")[-1]
-        with open(f"{self._folder}/{match_id}.pgn", "a") as file:
+        with open(f"{self._folder}/{match_id}.pgn", "w") as file:
             logging.debug(f"Stored match: {match_url}")
             file.write(match_pgn)
 
