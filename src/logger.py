@@ -27,21 +27,39 @@ class ColoredFormatter(logging.Formatter):
         return f"{self.COLOR_CODES[record.levelname]}{log_message}\033[0m"
 
 
-def setup_logging(level=logging.INFO):
+def setup_logging(level="INFO"):
     """
     Set up colored logging.
 
     This function configures colored logging using the ColoredFormatter class.
 
     :param level: The logging level.
-    :type level: int
+    :type level: str
     :return: The configured logger instance.
     :rtype: Logger
     """
+    level_map = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL,
+    }
+
+    # Default to INFO level if the provided level is not valid
+    level_to_set = level_map.get(level, "INFO")
+
+    # Init logger
     logger = logging.getLogger()
-    logger.setLevel(level)
+    logger.setLevel(level_to_set)
     console_handler = logging.StreamHandler()
     formatter = ColoredFormatter('%(levelname)s: %(message)s')
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
+    # Log incorrect level parameter
+    if level not in level_map:
+        logger.warning(
+            f"Invalid logging level '{level}' provided. Defaulting to 'INFO'.")
+
     return logger
