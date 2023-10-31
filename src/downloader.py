@@ -92,7 +92,7 @@ class ChessDownloader:
 parser = argparse.ArgumentParser(description='Download chess games and store them as PGN files.')
 parser.add_argument('--username', type=str, default='Joseda8', help='Username of the chess player.')
 parser.add_argument('--year', type=int, default=2023, help='Year of the games to download.')
-parser.add_argument('--remove', action='store_true', default=True, help='Remove existing files before downloading.')
+parser.add_argument('--remove', action='store_true', help='Remove existing files before downloading.')
 parser.add_argument('--folder', type=str, default='matches', help='Folder to store the PGN files.')
 
 # Parse the arguments

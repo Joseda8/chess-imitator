@@ -1,0 +1,193 @@
+import os
+import random
+
+import chess
+import chess.pgn
+from sklearn.neighbors import KNeighborsClassifier
+
+from logger import setup_logging
+
+# Set up the logging configuration
+logger = setup_logging()
+
+
+class ChessStudent:
+    def __init__(self, games_directory: str, player_name: str):
+        """
+        Initializes the ChessStudent instance.
+        
+        :param games_directory: The directory where the PGN games files are stored.
+        :type games_directory: str
+        :param player_name: The name of the player that the algorithm should learn moves from.
+        :type player_name: str
+        """
+        self._games_directory = games_directory
+        self._player_name = player_name
+
+        # Moves mapping
+        self.piece_to_int = {
+            'p': 1, 'r': 2, 'n': 3, 'b': 4, 'q': 5, 'k': 6,
+            'P': -1, 'R': -2, 'N': -3, 'B': -4, 'Q': -5, 'K': -6
+        }
+
+        # Games loaded
+        self._games = []
+
+        # Something
+        self.clf = None
+
+        # Init settings
+
+        # Load games
+        self._load_games()
+
+        # Train algorithm
+        self.train_classifier()
+
+
+    def _load_games(self):
+        """
+        Loads the PGN game files from the specified directory and parses the games.
+        """
+        # Get matches files
+        files = os.listdir(self._games_directory)
+        files = [file for file in files if file.endswith('.pgn')]
+        logger.info(f"Number of files found in {self._games_directory}: {len(files)}")
+
+        # Parse matches
+        for file in files:
+            with open(os.path.join('matches', file)) as file_content:
+                logger.debug(f"Parsing match in the file: {file}")
+                game = chess.pgn.read_game(file_content)
+                self._games.append(game)
+
+    def train_classifier(self):
+        """
+        Extracts training data from the loaded games, preprocesses the data, and trains the k-NN classifier.
+        """
+        # Extract data
+        board_positions, moves = self._extract_training_data()
+        board_positions = [self._fen_to_encoded_list(fen.replace('/', '').replace(' ', '')) for fen in board_positions]
+        moves = [self._move_to_encoded_list(move) for move in moves]
+
+        self.clf = KNeighborsClassifier(n_neighbors=1)
+        self.clf.fit(board_positions, moves)
+
+    def _extract_training_data(self):
+        """
+        Extracts training data from the loaded games.
+        
+        :return: A tuple (board_positions, moves) where board_positions is a list of board positions (FEN strings) and moves is a list of moves (UCI strings).
+        :rtype: tuple(list, list)
+        """
+        # List to store board positions (FEN strings)
+        board_positions = []
+
+        # List to store moves (UCI strings)
+        moves = []
+        
+        # Extract data from the games
+        for game in self._games:
+            board = chess.Board()
+            # Determine if the target player is playing as white or black
+            white_player = game.headers["White"]
+            is_white = (white_player == self._player_name)
+            # Iterate over the moves made in the game
+            for move in game.mainline_moves():
+                # Check if the current move was made by the target player
+                if (board.turn == chess.WHITE and is_white) or (board.turn == chess.BLACK and not is_white):
+                    # Append current board position (FEN string) to board_positions
+                    board_positions.append(board.board_fen())
+                    # Append move (UCI string) to moves
+                    moves.append(move.uci())
+                try:
+                    # Update board to new state by applying the move
+                    board.push(move)
+                except AssertionError as excep:
+                    game_link = game.headers["Link"]
+                    logger.error(f"The next game contain an invalid move: {game_link} - {excep}")
+        return board_positions, moves
+
+    def _fen_to_encoded_list(self, fen):
+        """
+        Converts a FEN string to a list of integers.
+        
+        :param fen: The FEN string to convert.
+        :type fen: str
+        :return: A list of integers representing the FEN string.
+        :rtype: list
+        """
+        encoded = []
+        for char in fen:
+            if char.isdigit():
+                encoded.extend([0] * int(char))
+            elif char in self.piece_to_int:
+                encoded.append(self.piece_to_int[char])
+        return encoded
+
+    def _move_to_encoded_list(self, move):
+        """
+        Converts a UCI move string to a list of integers.
+        
+        :param move: The UCI move string to convert.
+        :type move: str
+        :return: A list of integers representing the move.
+        :rtype: list
+        """
+        start_square, target_square = move[:2], move[2:4]
+        start_index = (8 - int(start_square[1])) * 8 + ord(start_square[0]) - ord('a')
+        target_index = (8 - int(target_square[1])) * 8 + ord(target_square[0]) - ord('a')
+        return [start_index, target_index]
+
+    def move_to_uci(self, move_indices):
+        """
+        Converts a list of move indices to a UCI move string.
+        
+        :param move_indices: The list of move indices to convert.
+        :type move_indices: list
+        :return: The UCI move string.
+        :rtype: str
+        """
+        start_square = chess.square_name(move_indices[0])
+        target_square = chess.square_name(move_indices[1])
+        return start_square + target_square
+
+    def make_move(self, board):
+        """
+        Generates a move for the bot based on the k-NN classifier.
+        
+        :param board: The current chess board.
+        :type board: chess.Board
+        :return: The generated move.
+        :rtype: chess.Move
+        """
+        fen = board.board_fen()
+        fen = self._fen_to_encoded_list(fen.replace('/', '').replace(' ', ''))
+        move_indices = self.clf.predict([fen])[0]
+        move = self.move_to_uci(move_indices)
+        move = chess.Move.from_uci(move)
+
+        if move not in board.legal_moves:
+            logger.warning("A random move was made instead of a predicted one.")
+            move = random.choice(list(board.legal_moves))
+        return move
+
+    def play_game(self):
+        """
+        Plays a game of chess against the human player.
+        """
+        board = chess.Board()
+        while not board.is_game_over():
+            if board.turn == chess.WHITE:
+                move = input('Enter your move: ')
+                board.push_uci(move)
+            else:
+                move = self.make_move(board)
+                print(f"Bot's move: {move.uci()}")
+                board.push(move)
+
+        print(board.result())
+
+# Usage
+bot = ChessStudent(games_directory=".", player_name="Joseda8")
+bot.play_game()
