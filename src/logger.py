@@ -52,6 +52,12 @@ def setup_logging(level="INFO"):
     # Init logger
     logger = logging.getLogger()
     logger.setLevel(level_to_set)
+
+    # Remove any existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+
+    # Add a new handler
     console_handler = logging.StreamHandler()
     formatter = ColoredFormatter('%(levelname)s: %(message)s')
     console_handler.setFormatter(formatter)

@@ -1,5 +1,4 @@
 import os
-import random
 
 import chess
 import chess.pgn
@@ -36,14 +35,11 @@ class ChessStudent:
         # Something
         self.clf = None
 
-        # Init settings
-
         # Load games
         self._load_games()
 
         # Train algorithm
-        self.train_classifier()
-
+        self._train_classifier()
 
     def _load_games(self):
         """
@@ -59,15 +55,19 @@ class ChessStudent:
             with open(os.path.join('matches', file)) as file_content:
                 logger.debug(f"Parsing match in the file: {file}")
                 game = chess.pgn.read_game(file_content)
-                self._games.append(game)
+                game_variant = game.headers.get("Variant", None)
+                if game_variant is None:
+                    self._games.append(game)
+        
+        logger.info(f"Number of games parsed: {len(self._games)}")
 
-    def train_classifier(self):
+    def _train_classifier(self):
         """
         Extracts training data from the loaded games, preprocesses the data, and trains the k-NN classifier.
         """
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self._fen_to_encoded_list(fen.replace('/', '').replace(' ', '')) for fen in board_positions]
+        board_positions = [self.fen_to_encoded_list(fen for fen in board_positions)]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         self.clf = KNeighborsClassifier(n_neighbors=1)
@@ -108,7 +108,7 @@ class ChessStudent:
                     logger.error(f"The next game contain an invalid move: {game_link} - {excep}")
         return board_positions, moves
 
-    def _fen_to_encoded_list(self, fen):
+    def fen_to_encoded_list(self, fen):
         """
         Converts a FEN string to a list of integers.
         
@@ -117,6 +117,7 @@ class ChessStudent:
         :return: A list of integers representing the FEN string.
         :rtype: list
         """
+        fen = fen.replace('/', '').replace(' ', '')
         encoded = []
         for char in fen:
             if char.isdigit():
@@ -151,43 +152,3 @@ class ChessStudent:
         start_square = chess.square_name(move_indices[0])
         target_square = chess.square_name(move_indices[1])
         return start_square + target_square
-
-    def make_move(self, board):
-        """
-        Generates a move for the bot based on the k-NN classifier.
-        
-        :param board: The current chess board.
-        :type board: chess.Board
-        :return: The generated move.
-        :rtype: chess.Move
-        """
-        fen = board.board_fen()
-        fen = self._fen_to_encoded_list(fen.replace('/', '').replace(' ', ''))
-        move_indices = self.clf.predict([fen])[0]
-        move = self.move_to_uci(move_indices)
-        move = chess.Move.from_uci(move)
-
-        if move not in board.legal_moves:
-            logger.warning("A random move was made instead of a predicted one.")
-            move = random.choice(list(board.legal_moves))
-        return move
-
-    def play_game(self):
-        """
-        Plays a game of chess against the human player.
-        """
-        board = chess.Board()
-        while not board.is_game_over():
-            if board.turn == chess.WHITE:
-                move = input('Enter your move: ')
-                board.push_uci(move)
-            else:
-                move = self.make_move(board)
-                print(f"Bot's move: {move.uci()}")
-                board.push(move)
-
-        print(board.result())
-
-# Usage
-bot = ChessStudent(games_directory=".", player_name="Joseda8")
-bot.play_game()
