@@ -30,7 +30,7 @@ class ChessMatch:
         :rtype: chess.Move
         """
         fen = board.board_fen()
-        fen = self.chess_student.fen_to_encoded_list(fen)
+        fen = self.chess_student.fen_to_encoded_list(fen.replace('/', '').replace(' ', ''))
         move_indices = self.chess_student.clf.predict([fen])[0]
         move = self.chess_student.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)
@@ -57,6 +57,6 @@ class ChessMatch:
         print(board.result())
 
 # Usage
-chess_student = ChessStudent(games_directory="matches", player_name="Hikaru")
+chess_student = ChessStudent(games_directory="matches", player_name="Hikaru", cache=True)
 chess_match = ChessMatch(chess_student)
 chess_match.play_game()

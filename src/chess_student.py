@@ -4,6 +4,7 @@ import chess
 import chess.pgn
 from sklearn.neighbors import KNeighborsClassifier
 
+from cache_data import cache_data
 from logger import setup_logging
 
 # Set up the logging configuration
@@ -11,7 +12,7 @@ logger = setup_logging()
 
 
 class ChessStudent:
-    def __init__(self, games_directory: str, player_name: str):
+    def __init__(self, games_directory: str, player_name: str, cache: bool = False):
         """
         Initializes the ChessStudent instance.
         
@@ -19,6 +20,8 @@ class ChessStudent:
         :type games_directory: str
         :param player_name: The name of the player that the algorithm should learn moves from.
         :type player_name: str
+        :param cache: Parameter indicating if cache will be used.
+        :type cache: bool
         """
         self._games_directory = games_directory
         self._player_name = player_name
@@ -32,14 +35,8 @@ class ChessStudent:
         # Games loaded
         self._games = []
 
-        # Something
-        self.clf = None
-
-        # Load games
-        self._load_games()
-
-        # Train algorithm
-        self._train_classifier()
+        # Algorithm trained
+        self.clf = cache_data(func=self._train_classifier, file_name="algorithm", cache=cache)
 
     def _load_games(self):
         """
@@ -65,13 +62,18 @@ class ChessStudent:
         """
         Extracts training data from the loaded games, preprocesses the data, and trains the k-NN classifier.
         """
+        # Load games
+        self._load_games()
+
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self.fen_to_encoded_list(fen for fen in board_positions)]
+        board_positions = [self.fen_to_encoded_list(fen.replace('/', '').replace(' ', '')) for fen in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
-        self.clf = KNeighborsClassifier(n_neighbors=1)
-        self.clf.fit(board_positions, moves)
+        # Train algorithm
+        algorithm = KNeighborsClassifier(n_neighbors=1)
+        algorithm.fit(board_positions, moves)
+        return algorithm
 
     def _extract_training_data(self):
         """
@@ -88,7 +90,8 @@ class ChessStudent:
         
         # Extract data from the games
         for game in self._games:
-            board = chess.Board()
+            board_init_pos = game.headers.get("FEN", None)
+            board = chess.Board(board_init_pos) if board_init_pos is not None else chess.Board()
             # Determine if the target player is playing as white or black
             white_player = game.headers["White"]
             is_white = (white_player == self._player_name)
@@ -117,7 +120,6 @@ class ChessStudent:
         :return: A list of integers representing the FEN string.
         :rtype: list
         """
-        fen = fen.replace('/', '').replace(' ', '')
         encoded = []
         for char in fen:
             if char.isdigit():
