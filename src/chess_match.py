@@ -36,7 +36,7 @@ class ChessMatch:
         move = chess.Move.from_uci(move)
 
         if move not in board.legal_moves:
-            logger.warning("A random move was made instead of a predicted one.")
+            logger.warning(f"A random move was made instead of a predicted one. Predicted move was: {move}")
             move = random.choice(list(board.legal_moves))
         return move
 
@@ -46,7 +46,7 @@ class ChessMatch:
         """
         board = chess.Board()
         while not board.is_game_over():
-            if board.turn == chess.WHITE:
+            if board.turn == chess.BLACK:
                 move = input('Enter your move: ')
                 board.push_uci(move)
             else:
