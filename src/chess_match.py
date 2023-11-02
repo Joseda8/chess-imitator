@@ -11,14 +11,17 @@ logger = setup_logging()
 
 
 class ChessMatch:
-    def __init__(self, chess_student: ChessStudent):
+    def __init__(self, chess_student: ChessStudent, bot_color: chess.Color):
         """
         Initializes the ChessMatch instance.
 
         :param chess_student: An instance of the ChessStudent class.
         :type chess_student: ChessStudent
+        :param bot_color: The color that the bot is playing as.
+        :type bot_color: chess.Color
         """
         self.chess_student = chess_student
+        self.bot_color = bot_color
 
     def make_move(self, board):
         """
@@ -46,17 +49,20 @@ class ChessMatch:
         """
         board = chess.Board()
         while not board.is_game_over():
-            if board.turn == chess.BLACK:
-                move = input('Enter your move: ')
-                board.push_uci(move)
-            else:
+            if board.turn == self.bot_color:
                 move = self.make_move(board)
                 print(f"Bot's move: {move.uci()}")
                 board.push(move)
+            else:
+                move = input('Enter your move: ')
+                board.push_uci(move)
 
         print(board.result())
 
-# Usage
+
+# -----------------
+# Main
+# -----------------
 chess_student = ChessStudent(games_directory="matches", player_name="Hikaru", cache=True)
-chess_match = ChessMatch(chess_student)
+chess_match = ChessMatch(chess_student, bot_color=chess.WHITE)
 chess_match.play_game()
