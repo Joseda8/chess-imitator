@@ -72,7 +72,7 @@ class ChessStudent:
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Train algorithm
-        algorithm = KNeighborsClassifier(n_neighbors=1)
+        algorithm = KNeighborsClassifier(n_neighbors=3)
         algorithm.fit(board_positions, moves)
         return algorithm
 

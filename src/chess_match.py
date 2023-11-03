@@ -60,13 +60,19 @@ class ChessMatch:
         while not board.is_game_over():
             if board.turn == self.bot_color:
                 move = self.make_move(board)
-                print(f"Bot's move: {move.uci()}")
+                logger.info(f"Bot's move: {move.uci()}")
                 board.push(move)
             else:
                 move = input("Enter your move: ")
                 board.push_uci(move)
-        print(board.result())
 
+            # Flip the board if the bot is playing as black
+            if self.bot_color == chess.BLACK:
+                print(f"Board state:\n{board.transform(chess.flip_vertical)}")
+            else:
+                print(f"Board state:\n{board}")
+        logger.info(board.result())
+    
 # -----------------
 # Main
 # -----------------
