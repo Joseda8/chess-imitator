@@ -12,6 +12,13 @@ logger = setup_logging()
 
 
 class ChessStudent:
+
+    # Moves mapping from FEN to number notation
+    PIECE_TO_INT = {
+        "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
+        "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
+    }
+
     def __init__(self, games_directory: str, player_name: str, cache: bool = False):
         """
         Initializes the ChessStudent instance.
@@ -25,12 +32,6 @@ class ChessStudent:
         """
         self._games_directory = games_directory
         self._player_name = player_name
-
-        # Moves mapping
-        self.piece_to_int = {
-            "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
-            "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
-        }
 
         # Games loaded
         self._games = []
@@ -124,8 +125,8 @@ class ChessStudent:
         for char in fen:
             if char.isdigit():
                 encoded.extend([0] * int(char))
-            elif char in self.piece_to_int:
-                encoded.append(self.piece_to_int[char])
+            elif char in self.PIECE_TO_INT:
+                encoded.append(self.PIECE_TO_INT[char])
         return encoded
 
     def _move_to_encoded_list(self, move):
@@ -141,16 +142,3 @@ class ChessStudent:
         start_index = (int(start_square[1]) - 1) * 8 + ord(start_square[0]) - ord("a")
         target_index = (int(target_square[1]) - 1) * 8 + ord(target_square[0]) - ord("a")
         return [start_index, target_index]
-
-    def move_to_uci(self, move_indices):
-        """
-        Converts a list of move indices to a UCI move string.
-        
-        :param move_indices: The list of move indices to convert.
-        :type move_indices: list
-        :return: The UCI move string.
-        :rtype: str
-        """
-        start_square = chess.square_name(move_indices[0])
-        target_square = chess.square_name(move_indices[1])
-        return start_square + target_square
