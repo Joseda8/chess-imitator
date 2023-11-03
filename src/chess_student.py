@@ -3,6 +3,7 @@ import os
 import chess
 import chess.pgn
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 from cache_data import cache_data
 from logger import setup_logging
@@ -37,7 +38,7 @@ class ChessStudent:
         self._games = []
 
         # Algorithm trained
-        self.bot = cache_data(func=self._train_classifier, file_name="algorithm", cache=cache)
+        self.bot = cache_data(func=self._train_classifier, file_name=f"{player_name}", cache=cache)
 
     def _load_games(self):
         """
@@ -72,7 +73,8 @@ class ChessStudent:
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Train algorithm
-        algorithm = KNeighborsClassifier(n_neighbors=3)
+        # algorithm = KNeighborsClassifier(n_neighbors=3)
+        algorithm = RandomForestClassifier(n_estimators=100, random_state=42)
         algorithm.fit(board_positions, moves)
         return algorithm
 

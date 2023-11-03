@@ -28,5 +28,3 @@ For example, to download games from the year 2023 for the player "Joseda8" and s
 ```sh
 python downloader.py --username Joseda8 --year 2023
 ```
-
-

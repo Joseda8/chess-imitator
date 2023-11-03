@@ -1,3 +1,4 @@
+import argparse
 import random
 
 import chess
@@ -72,10 +73,28 @@ class ChessMatch:
             else:
                 print(f"Board state:\n{board}")
         logger.info(board.result())
-    
+
+
 # -----------------
 # Main
 # -----------------
-chess_student = ChessStudent(games_directory="matches", player_name="Hikaru", cache=True)
-chess_match = ChessMatch(chess_student, bot_color=chess.WHITE)
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description='Play a game of chess against a trained bot.')
+parser.add_argument('--games_directory', type=str, help='The directory where the PGN games files are stored.')
+parser.add_argument('--player_name', type=str, help='The name of the player that the bot should learn moves from.')
+parser.add_argument('--cache', action='store_true', help='Indicates whether the results should be cached.')
+parser.add_argument('--bot_color', type=str, default='white', help='The color that the bot is playing as (white or black).')
+
+# Parse command line arguments
+args = parser.parse_args()
+
+# Convert bot color to chess.Color
+bot_color = chess.WHITE if args.bot_color == 'white' else chess.BLACK
+
+# Create ChessStudent and ChessMatch instances
+chess_student = ChessStudent(games_directory=args.games_directory, player_name=args.player_name, cache=args.cache)
+chess_match = ChessMatch(chess_student, bot_color=bot_color)
+
+# Play the game
 chess_match.play_game()
