@@ -37,7 +37,7 @@ class ChessStudent:
         self._games = []
 
         # Algorithm trained
-        self.clf = cache_data(func=self._train_classifier, file_name="algorithm", cache=cache)
+        self.bot = cache_data(func=self._train_classifier, file_name="algorithm", cache=cache)
 
     def _load_games(self):
         """
@@ -61,7 +61,7 @@ class ChessStudent:
 
     def _train_classifier(self):
         """
-        Extracts training data from the loaded games, preprocesses the data, and trains the k-NN classifier.
+        Extracts training data from the loaded games, preprocesses the data, and trains the bot.
         """
         # Load games
         self._load_games()

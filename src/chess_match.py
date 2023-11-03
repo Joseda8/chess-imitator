@@ -43,7 +43,7 @@ class ChessMatch:
         """
         fen = board.board_fen()
         fen = self.chess_student.fen_to_encoded_list(fen.replace("/", "").replace(" ", ""))
-        move_indices = self.chess_student.clf.predict([fen])[0]
+        move_indices = self.chess_student.bot.predict([fen])[0]
         move = self.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)
 
