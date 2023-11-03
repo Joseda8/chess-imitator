@@ -138,8 +138,8 @@ class ChessStudent:
         :rtype: list
         """
         start_square, target_square = move[:2], move[2:4]
-        start_index = (8 - int(start_square[1])) * 8 + ord(start_square[0]) - ord('a')
-        target_index = (8 - int(target_square[1])) * 8 + ord(target_square[0]) - ord('a')
+        start_index = (int(start_square[1]) - 1) * 8 + ord(start_square[0]) - ord('a')
+        target_index = (int(target_square[1]) - 1) * 8 + ord(target_square[0]) - ord('a')
         return [start_index, target_index]
 
     def move_to_uci(self, move_indices):

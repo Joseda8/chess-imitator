@@ -64,5 +64,5 @@ class ChessMatch:
 # Main
 # -----------------
 chess_student = ChessStudent(games_directory="matches", player_name="Hikaru", cache=True)
-chess_match = ChessMatch(chess_student, bot_color=chess.WHITE)
+chess_match = ChessMatch(chess_student, bot_color=chess.BLACK)
 chess_match.play_game()
