@@ -28,8 +28,8 @@ class ChessStudent:
 
         # Moves mapping
         self.piece_to_int = {
-            'p': 1, 'r': 2, 'n': 3, 'b': 4, 'q': 5, 'k': 6,
-            'P': -1, 'R': -2, 'N': -3, 'B': -4, 'Q': -5, 'K': -6
+            "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
+            "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
         }
 
         # Games loaded
@@ -44,12 +44,12 @@ class ChessStudent:
         """
         # Get matches files
         files = os.listdir(self._games_directory)
-        files = [file for file in files if file.endswith('.pgn')]
+        files = [file for file in files if file.endswith(".pgn")]
         logger.info(f"Number of files found in {self._games_directory}: {len(files)}")
 
         # Parse matches
         for file in files:
-            with open(os.path.join('matches', file)) as file_content:
+            with open(os.path.join("matches", file)) as file_content:
                 logger.debug(f"Parsing match in the file: {file}")
                 game = chess.pgn.read_game(file_content)
                 game_variant = game.headers.get("Variant", None)
@@ -67,7 +67,7 @@ class ChessStudent:
 
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self.fen_to_encoded_list(fen.replace('/', '').replace(' ', '')) for fen in board_positions]
+        board_positions = [self.fen_to_encoded_list(fen.replace("/", "").replace(" ", "")) for fen in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Train algorithm
@@ -138,8 +138,8 @@ class ChessStudent:
         :rtype: list
         """
         start_square, target_square = move[:2], move[2:4]
-        start_index = (int(start_square[1]) - 1) * 8 + ord(start_square[0]) - ord('a')
-        target_index = (int(target_square[1]) - 1) * 8 + ord(target_square[0]) - ord('a')
+        start_index = (int(start_square[1]) - 1) * 8 + ord(start_square[0]) - ord("a")
+        target_index = (int(target_square[1]) - 1) * 8 + ord(target_square[0]) - ord("a")
         return [start_index, target_index]
 
     def move_to_uci(self, move_indices):

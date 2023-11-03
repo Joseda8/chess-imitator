@@ -26,7 +26,7 @@ class ChessDownloader:
         self._player_name = player_name
         self._folder = folder
 
-        # Module to make requests bypassing Cloudflare's anti-bot
+        # Module to make requests bypassing Cloudflare"s anti-bot
         self._scraper = cloudscraper.create_scraper()
 
     def _store_match(self, match_url: str, match_pgn: str):
@@ -72,16 +72,16 @@ class ChessDownloader:
         :type year: int
         """
         logger.info(f"Fetching games for the year {year}")
-        # Create the 'matches' folder if it doesn't exist
+        # Create the "matches" folder if it doesn"t exist
         if not os.path.exists(self._folder):
             os.makedirs(self._folder)
 
         # Download all the games for a given year per month
         for month in range(1, 13):
             month_name = {
-                1: 'January', 2: 'February', 3: 'March', 4: 'April',
-                5: 'May', 6: 'June', 7: 'July', 8: 'August',
-                9: 'September', 10: 'October', 11: 'November', 12: 'December'
+                1: "January", 2: "February", 3: "March", 4: "April",
+                5: "May", 6: "June", 7: "July", 8: "August",
+                9: "September", 10: "October", 11: "November", 12: "December"
             }[month]
             logger.info(f"Fetching games for {month_name}")
             url_match = f"https://api.chess.com/pub/player/{self._player_name}/games/{year}/{month:02d}"
@@ -89,11 +89,11 @@ class ChessDownloader:
 
 
 # Argument parser
-parser = argparse.ArgumentParser(description='Download chess games and store them as PGN files.')
-parser.add_argument('--username', type=str, default='Joseda8', help='Username of the chess player.')
-parser.add_argument('--year', type=int, default=2023, help='Year of the games to download.')
-parser.add_argument('--remove', action='store_true', help='Remove existing files before downloading.')
-parser.add_argument('--folder', type=str, default='matches', help='Folder to store the PGN files.')
+parser = argparse.ArgumentParser(description="Download chess games and store them as PGN files.")
+parser.add_argument("--username", type=str, default="Joseda8", help="Username of the chess player.")
+parser.add_argument("--year", type=int, default=2023, help="Year of the games to download.")
+parser.add_argument("--remove", action="store_true", help="Remove existing files before downloading.")
+parser.add_argument("--folder", type=str, default="matches", help="Folder to store the PGN files.")
 
 # Parse the arguments
 args = parser.parse_args()

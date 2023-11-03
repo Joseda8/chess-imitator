@@ -33,7 +33,7 @@ class ChessMatch:
         :rtype: chess.Move
         """
         fen = board.board_fen()
-        fen = self.chess_student.fen_to_encoded_list(fen.replace('/', '').replace(' ', ''))
+        fen = self.chess_student.fen_to_encoded_list(fen.replace("/", "").replace(" ", ""))
         move_indices = self.chess_student.clf.predict([fen])[0]
         move = self.chess_student.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)
@@ -54,7 +54,7 @@ class ChessMatch:
                 print(f"Bot's move: {move.uci()}")
                 board.push(move)
             else:
-                move = input('Enter your move: ')
+                move = input("Enter your move: ")
                 board.push_uci(move)
 
         print(board.result())
@@ -64,5 +64,5 @@ class ChessMatch:
 # Main
 # -----------------
 chess_student = ChessStudent(games_directory="matches", player_name="Hikaru", cache=True)
-chess_match = ChessMatch(chess_student, bot_color=chess.BLACK)
+chess_match = ChessMatch(chess_student, bot_color=chess.WHITE)
 chess_match.play_game()
