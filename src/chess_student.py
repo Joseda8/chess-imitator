@@ -70,7 +70,7 @@ class ChessStudent:
 
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self.fen_to_encoded_list(fen.replace("/", "").replace(" ", "")) for fen in board_positions]
+        board_positions = [self.fen_to_encoded_list(fen) for fen in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Select and train the chosen algorithm

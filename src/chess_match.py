@@ -43,7 +43,7 @@ class ChessMatch:
         :rtype: chess.Move
         """
         fen = board.board_fen()
-        fen = self.chess_student.fen_to_encoded_list(fen.replace("/", "").replace(" ", ""))
+        fen = self.chess_student.fen_to_encoded_list(fen)
         move_indices = self.chess_student.bot.predict([fen])[0]
         move = self.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)
@@ -69,9 +69,11 @@ class ChessMatch:
 
             # Flip the board if the bot is playing as black
             if self.bot_color == chess.BLACK:
-                print(f"Board state:\n{board.transform(chess.flip_vertical)}")
+                flipped_board = board.transform(chess.flip_vertical).transform(chess.flip_horizontal)
+                print(f"Board state:\n{flipped_board}")
             else:
                 print(f"Board state:\n{board}")
+
         logger.info(board.result())
 
 
