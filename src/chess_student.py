@@ -2,8 +2,8 @@ import os
 
 import chess
 import chess.pgn
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from cache_data import cache_data
 from logger import setup_logging
@@ -20,7 +20,7 @@ class ChessStudent:
         "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
     }
 
-    def __init__(self, games_directory: str, player_name: str, cache: bool = False):
+    def __init__(self, games_directory: str, player_name: str, algorithm: str, cache: bool = False):
         """
         Initializes the ChessStudent instance.
         
@@ -31,6 +31,7 @@ class ChessStudent:
         :param cache: Parameter indicating if cache will be used.
         :type cache: bool
         """
+        self.algorithm = algorithm
         self._games_directory = games_directory
         self._player_name = player_name
 
@@ -38,7 +39,7 @@ class ChessStudent:
         self._games = []
 
         # Algorithm trained
-        self.bot = cache_data(func=self._train_classifier, file_name=f"{player_name}", cache=cache)
+        self.bot = cache_data(func=self._train_classifier, file_name=f"{player_name}_{algorithm}", cache=cache)
 
     def _load_games(self):
         """
@@ -72,9 +73,13 @@ class ChessStudent:
         board_positions = [self.fen_to_encoded_list(fen.replace("/", "").replace(" ", "")) for fen in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
-        # Train algorithm
-        # algorithm = KNeighborsClassifier(n_neighbors=3)
-        algorithm = RandomForestClassifier(n_estimators=100, random_state=42)
+        # Select and train the chosen algorithm
+        algorithms = {
+            'knn': KNeighborsClassifier(n_neighbors=3),
+            'rf': RandomForestClassifier(n_estimators=100, random_state=42)
+        }
+        algorithm = algorithms.get(self.algorithm)
+        logger.debug(f"Training the bot using the algorithm: {algorithm}")
         algorithm.fit(board_positions, moves)
         return algorithm
 

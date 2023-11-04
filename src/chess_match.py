@@ -80,20 +80,21 @@ class ChessMatch:
 # -----------------
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description='Play a game of chess against a trained bot.')
-parser.add_argument('--games_directory', type=str, help='The directory where the PGN games files are stored.')
-parser.add_argument('--player_name', type=str, help='The name of the player that the bot should learn moves from.')
-parser.add_argument('--cache', action='store_true', help='Indicates whether the results should be cached.')
-parser.add_argument('--bot_color', type=str, default='white', help='The color that the bot is playing as (white or black).')
+parser = argparse.ArgumentParser(description="Play a game of chess against a trained bot.")
+parser.add_argument("--games_directory", type=str, help="The directory where the PGN games files are stored.")
+parser.add_argument("--player_name", type=str, help="The name of the player that the bot should learn moves from.")
+parser.add_argument("--cache", action="store_true", help="Indicates whether the results should be cached.")
+parser.add_argument("--bot_color", type=str, choices=["white", "black"], default="white", help="The color that the bot is playing as (white or black).")
+parser.add_argument("--algorithm", type=str, choices=["knn", "rf"], default="knn", help="The machine learning algorithm to use (knn or rf).")
 
 # Parse command line arguments
 args = parser.parse_args()
 
 # Convert bot color to chess.Color
-bot_color = chess.WHITE if args.bot_color == 'white' else chess.BLACK
+bot_color = chess.WHITE if args.bot_color == "white" else chess.BLACK
 
 # Create ChessStudent and ChessMatch instances
-chess_student = ChessStudent(games_directory=args.games_directory, player_name=args.player_name, cache=args.cache)
+chess_student = ChessStudent(games_directory=args.games_directory, player_name=args.player_name, cache=args.cache, algorithm=args.algorithm)
 chess_match = ChessMatch(chess_student, bot_color=bot_color)
 
 # Play the game
