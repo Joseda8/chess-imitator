@@ -60,6 +60,7 @@ class ChessMatch:
         """
         board = chess.Board()
         while not board.is_game_over():
+            print("")
             if board.turn == self.bot_color:
                 move = self.make_move(board)
                 logger.info(f"Bot's move: {move.uci()}")
