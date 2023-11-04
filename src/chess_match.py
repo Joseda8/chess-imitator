@@ -43,7 +43,8 @@ class ChessMatch:
         :rtype: chess.Move
         """
         fen = board.board_fen()
-        fen = self.chess_student.fen_to_encoded_list(fen)
+        turn = board.turn
+        fen = self.chess_student.fen_to_encoded_list(fen=fen, turn=turn)
         move_indices = self.chess_student.bot.predict([fen])[0]
         move = self.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)

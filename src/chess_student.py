@@ -70,7 +70,7 @@ class ChessStudent:
 
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self.fen_to_encoded_list(fen) for fen in board_positions]
+        board_positions = [self.fen_to_encoded_list(fen=board["board"], turn=board["turn"]) for board in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Select and train the chosen algorithm
@@ -107,8 +107,11 @@ class ChessStudent:
             for move in game.mainline_moves():
                 # Check if the current move was made by the target player
                 if (board.turn == chess.WHITE and is_white) or (board.turn == chess.BLACK and not is_white):
-                    # Append current board position (FEN string) to board_positions
-                    board_positions.append(board.board_fen())
+                    # Append current board position (FEN string) to board_positions and turn
+                    board_positions.append({
+                        "board": board.board_fen(),
+                        "turn": board.turn
+                    })
                     # Append move (UCI string) to moves
                     moves.append(move.uci())
                 try:
@@ -119,21 +122,25 @@ class ChessStudent:
                     logger.error(f"The next game contain an invalid move: {game_link} - {excep}")
         return board_positions, moves
 
-    def fen_to_encoded_list(self, fen):
+    def fen_to_encoded_list(self, fen: str, turn: bool):
         """
         Converts a FEN string to a list of integers.
         
         :param fen: The FEN string to convert.
         :type fen: str
+        :param turn: Indicator of whose turn. True for white, False otherwise.
+        :type turn: bool
         :return: A list of integers representing the FEN string.
         :rtype: list
         """
+        turn = int(turn)
         encoded = []
         for char in fen:
             if char.isdigit():
                 encoded.extend([0] * int(char))
             elif char in self.PIECE_TO_INT:
                 encoded.append(self.PIECE_TO_INT[char])
+        encoded.append(turn)
         return encoded
 
     def _move_to_encoded_list(self, move):
