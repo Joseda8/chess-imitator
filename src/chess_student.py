@@ -11,14 +11,13 @@ from logger import setup_logging
 # Set up the logging configuration
 logger = setup_logging()
 
+# Moves mapping from FEN to number notation
+PIECE_TO_INT = {
+    "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
+    "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
+}
 
 class ChessStudent:
-
-    # Moves mapping from FEN to number notation
-    PIECE_TO_INT = {
-        "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
-        "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
-    }
 
     def __init__(self, games_directory: str, player_name: str, algorithm: str, cache: bool = False):
         """
@@ -52,7 +51,7 @@ class ChessStudent:
 
         # Parse matches
         for file in files:
-            with open(os.path.join("matches", file)) as file_content:
+            with open(os.path.join(self._games_directory, file)) as file_content:
                 logger.debug(f"Parsing match in the file: {file}")
                 game = chess.pgn.read_game(file_content)
                 game_variant = game.headers.get("Variant", None)
@@ -70,7 +69,7 @@ class ChessStudent:
 
         # Extract data
         board_positions, moves = self._extract_training_data()
-        board_positions = [self.fen_to_encoded_list(fen=board["board"], turn=board["turn"]) for board in board_positions]
+        board_positions = [ChessStudent.fen_to_encoded_list(fen=board["board"], turn=board["turn"]) for board in board_positions]
         moves = [self._move_to_encoded_list(move) for move in moves]
 
         # Select and train the chosen algorithm
@@ -122,7 +121,8 @@ class ChessStudent:
                     logger.error(f"The next game contain an invalid move: {game_link} - {excep}")
         return board_positions, moves
 
-    def fen_to_encoded_list(self, fen: str, turn: bool):
+    @staticmethod
+    def fen_to_encoded_list(fen: str, turn: bool):
         """
         Converts a FEN string to a list of integers.
         
@@ -138,8 +138,8 @@ class ChessStudent:
         for char in fen:
             if char.isdigit():
                 encoded.extend([0] * int(char))
-            elif char in self.PIECE_TO_INT:
-                encoded.append(self.PIECE_TO_INT[char])
+            elif char in PIECE_TO_INT:
+                encoded.append(PIECE_TO_INT[char])
         encoded.append(turn)
         return encoded
 

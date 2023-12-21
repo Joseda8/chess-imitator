@@ -44,7 +44,7 @@ class ChessMatch:
         """
         fen = board.board_fen()
         turn = board.turn
-        fen = self.chess_student.fen_to_encoded_list(fen=fen, turn=turn)
+        fen = ChessStudent.fen_to_encoded_list(fen=fen, turn=turn)
         move_indices = self.chess_student.bot.predict([fen])[0]
         move = self.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)

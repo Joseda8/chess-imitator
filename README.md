@@ -49,11 +49,11 @@ The script takes the following command-line arguments:
 To use the script, navigate to the project folder in a terminal and run the following command:
 
 ```sh
-python main.py --games_directory <path_to_games_directory> --player_name <player_name> --cache --bot_color <bot_color> --algorithm <algorithm>
+python chess_match.py --games_directory <path_to_games_directory> --player_name <player_name> --cache --bot_color <bot_color> --algorithm <algorithm>
 ```
 
 For example, to play a game of chess against the bot trained on games from the "matches" folder for the player "Joseda8", with the bot playing as white and using the k-NN algorithm, run the following command:
 
 ```sh
-python main.py --games_directory matches --player_name Joseda8 --cache --bot_color white --algorithm knn
+python chess_match.py --games_directory matches --player_name Joseda8 --cache --bot_color white --algorithm knn
 ```
