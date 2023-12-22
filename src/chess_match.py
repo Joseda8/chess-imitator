@@ -2,6 +2,8 @@ import argparse
 import random
 
 import chess
+import chess.svg
+from PIL import Image
 
 from chess_student import ChessStudent
 from logger import setup_logging
@@ -9,6 +11,7 @@ from logger import setup_logging
 
 # Set up the logging configuration
 logger = setup_logging()
+
 
 class ChessMatch:
     def __init__(self, chess_student: ChessStudent, bot_color: chess.Color):
@@ -61,7 +64,7 @@ class ChessMatch:
         board = chess.Board()
         while not board.is_game_over():
             print("")
-            is_bot_turn = board.turn == self.bot_color 
+            is_bot_turn = board.turn == self.bot_color
             if is_bot_turn:
                 move = self.make_move(board)
                 logger.info(f"Bot's move: {move.uci()}")
@@ -71,7 +74,24 @@ class ChessMatch:
                 board.push_uci(move)
             # Print board from the user perspective
             board_str = board.unicode(borders=True, empty_square=" ", orientation=board.turn, invert_color=is_bot_turn)
+            board_str = board_str.replace("|", " |").replace("-----------------", "---------------------------")
+            board_str = (board_str
+                .replace("a", " a")
+                .replace("b", " b")
+                .replace("c", " c")
+                .replace("d", " d")
+                .replace("e", " e")
+                .replace("f", " f")
+                .replace("g", " g")
+                .replace("h", " h")
+            )
             print(f"Board state:\n{board_str}")
+
+            # Save the board to an SVG file
+            svg_content = chess.svg.board(board=board)
+            with open(f"chess_board_{board.fullmove_number}.svg", "w") as svg_file:
+                svg_file.write(svg_content)
+
         logger.info(board.result())
 
 

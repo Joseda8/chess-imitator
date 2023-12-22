@@ -74,8 +74,8 @@ class ChessStudent:
 
         # Select and train the chosen algorithm
         algorithms = {
-            'knn': KNeighborsClassifier(n_neighbors=3),
-            'rf': RandomForestClassifier(n_estimators=100, random_state=42)
+            "knn": KNeighborsClassifier(n_neighbors=3),
+            "rf": RandomForestClassifier(n_estimators=100, random_state=42)
         }
         algorithm = algorithms.get(self.algorithm)
         logger.debug(f"Training the bot using the algorithm: {algorithm}")

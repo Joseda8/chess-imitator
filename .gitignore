@@ -9,3 +9,6 @@ __pycache__/
 
 # Ignore cache files
 *.pickle
+
+# Ignore images
+*.svg
