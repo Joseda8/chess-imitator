@@ -71,7 +71,12 @@ class ChessMatch:
                 board.push(move)
             else:
                 move = input("Enter your move: ")
-                board.push_uci(move)
+                try:
+                    board.push_uci(move)
+                except:
+                    logger.warning(f"Ilegal move made: {move}. Try again.")
+                    continue
+
             # Print board from the user perspective
             board_str = board.unicode(borders=True, empty_square=" ", orientation=board.turn, invert_color=is_bot_turn)
             board_str = board_str.replace("|", " |").replace("-----------------", "---------------------------")
