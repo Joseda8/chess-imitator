@@ -23,7 +23,7 @@ class ChessMatch:
         """
         self.chess_student = chess_student
         self.bot_color = bot_color
-        self.is_user_black = (bot_color == chess.WHITE)
+        self.user_color = chess.WHITE if bot_color == chess.BLACK else chess.BLACK
 
     @staticmethod
     def move_to_uci(move_indices):
@@ -63,6 +63,7 @@ class ChessMatch:
         Plays a game of chess against the human player.
         """
         board = chess.Board()
+        counter_moves = 0
         while not board.is_game_over():
             print("")
             is_bot_turn = board.turn == self.bot_color
@@ -79,7 +80,7 @@ class ChessMatch:
                     continue
 
             # Print board from the user perspective
-            board_str = board.unicode(borders=True, empty_square=" ", orientation=board.turn, invert_color=is_bot_turn)
+            board_str = board.unicode(borders=True, empty_square=" ", orientation=self.user_color, invert_color=self.bot_color)
             board_str = board_str.replace("|", " |").replace("-----------------", "---------------------------")
             board_str = (board_str
                 .replace("a", " a")
@@ -94,9 +95,10 @@ class ChessMatch:
             print(f"Board state:\n{board_str}")
 
             # Save the board to an SVG file
-            svg_content = chess.svg.board(board=board, flipped=self.is_user_black)
-            with open(f"chess_board.svg", "w") as svg_file:
+            svg_content = chess.svg.board(board=board, flipped=self.user_color)
+            with open(f"{self.chess_student.algorithm}_{counter_moves}.svg", "w") as svg_file:
                 svg_file.write(svg_content)
+            counter_moves += 1
 
         logger.info(board.result())
 
