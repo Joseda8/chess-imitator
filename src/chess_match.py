@@ -3,7 +3,6 @@ import random
 
 import chess
 import chess.svg
-from PIL import Image
 
 from chess_student import ChessStudent
 from logger import setup_logging
@@ -24,8 +23,10 @@ class ChessMatch:
         """
         self.chess_student = chess_student
         self.bot_color = bot_color
+        self.is_user_black = (bot_color == chess.WHITE)
 
-    def move_to_uci(self, move_indices):
+    @staticmethod
+    def move_to_uci(move_indices):
         """
         Converts a list of move indices to a UCI move string.
         :param move_indices: The list of move indices to convert.
@@ -49,7 +50,7 @@ class ChessMatch:
         turn = board.turn
         fen = ChessStudent.fen_to_encoded_list(fen=fen, turn=turn)
         move_indices = self.chess_student.bot.predict([fen])[0]
-        move = self.move_to_uci(move_indices)
+        move = ChessMatch.move_to_uci(move_indices)
         move = chess.Move.from_uci(move)
 
         if move not in board.legal_moves:
@@ -93,8 +94,8 @@ class ChessMatch:
             print(f"Board state:\n{board_str}")
 
             # Save the board to an SVG file
-            svg_content = chess.svg.board(board=board)
-            with open(f"chess_board_{board.fullmove_number}.svg", "w") as svg_file:
+            svg_content = chess.svg.board(board=board, flipped=self.is_user_black)
+            with open(f"chess_board.svg", "w") as svg_file:
                 svg_file.write(svg_content)
 
         logger.info(board.result())

@@ -13,8 +13,8 @@ logger = setup_logging()
 
 # Moves mapping from FEN to number notation
 PIECE_TO_INT = {
-    "p": 1, "r": 2, "n": 3, "b": 4, "q": 5, "k": 6,
-    "P": -1, "R": -2, "N": -3, "B": -4, "Q": -5, "K": -6
+    "P": 1, "R": 2, "N": 3, "B": 4, "Q": 5, "K": 6,
+    "p": -1, "r": -2, "n": -3, "b": -4, "q": -5, "k": -6
 }
 
 class ChessStudent:
